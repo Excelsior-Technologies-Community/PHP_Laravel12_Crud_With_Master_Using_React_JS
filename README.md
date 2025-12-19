@@ -264,9 +264,6 @@ DELETE /api/products/{id}
 
 ---
 
-## Troubleshooting 
-* Ensure CORS is configured for http://localhost:3000
-* Verify database credentials in .env
-* Change ports if already in use
-* Run migrations if tables are missing
- ---
+## License
+
+This project is open‑source and free to use for learning and educational purposes.
