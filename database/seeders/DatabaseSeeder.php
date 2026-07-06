@@ -15,9 +15,13 @@ class DatabaseSeeder extends Seeder
 
         // Create products for each category
         $categories->each(function ($category) {
-            Product::factory(3)->create([
-                'category_id' => $category->id
-            ]);
+            for ($i = 1; $i <= 3; $i++) {
+
+                Product::factory()->create([
+                    'category_id' => $category->id,
+                    'sku' => 'PRD-' . strtoupper(\Illuminate\Support\Str::random(6))
+                ]);
+            }
         });
     }
 }

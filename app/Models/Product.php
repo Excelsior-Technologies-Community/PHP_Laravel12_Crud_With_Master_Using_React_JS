@@ -11,15 +11,33 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 
-        'description', 
-        'price', 
-        'stock', 
+        'sku',
+        'name',
+        'description',
+        'price',
+        'stock',
         'category_id'
+    ];
+
+    protected $appends = [
+        'inventory_status'
     ];
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function getInventoryStatusAttribute()
+    {
+        if ($this->stock == 0) {
+            return 'Out of Stock';
+        }
+
+        if ($this->stock <= 10) {
+            return 'Low Stock';
+        }
+
+        return 'In Stock';
     }
 }
