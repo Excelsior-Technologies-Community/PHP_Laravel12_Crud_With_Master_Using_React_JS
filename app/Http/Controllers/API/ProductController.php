@@ -99,7 +99,14 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product = Product::create($request->all());
+        $product = Product::create([
+            'sku' => $this->generateSku(),
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'stock' => $request->stock,
+            'category_id' => $request->category_id,
+        ]);
 
         return response()->json([
 
@@ -172,7 +179,13 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product->update($request->all());
+        $product->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'stock' => $request->stock,
+            'category_id' => $request->category_id,
+        ]);
 
         return response()->json([
 
@@ -250,6 +263,52 @@ class ProductController extends Controller
 
             'data' => $products
 
+        ]);
+    }
+
+    private function generateSku()
+    {
+        $lastProduct = Product::latest('id')->first();
+
+        $number = $lastProduct ? $lastProduct->id + 1 : 1;
+
+        return 'PRD-' . str_pad($number, 5, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Product Statistics API
+     */
+    public function statistics()
+    {
+        $totalProducts = Product::count();
+
+        $inStock = Product::where('stock', '>', 10)->count();
+
+        $lowStock = Product::whereBetween('stock', [1, 10])->count();
+
+        $outOfStock = Product::where('stock', 0)->count();
+
+        $averagePrice = round(Product::avg('price'), 2);
+
+        $highestPrice = Product::max('price');
+
+        $lowestPrice = Product::min('price');
+
+        $inventoryValue = Product::sum(DB::raw('price * stock'));
+
+        return response()->json([
+            'success' => true,
+
+            'statistics' => [
+                'total_products' => $totalProducts,
+                'in_stock_products' => $inStock,
+                'low_stock_products' => $lowStock,
+                'out_of_stock_products' => $outOfStock,
+                'average_price' => $averagePrice,
+                'highest_price' => $highestPrice,
+                'lowest_price' => $lowestPrice,
+                'inventory_value' => round($inventoryValue, 2),
+            ]
         ]);
     }
 }
